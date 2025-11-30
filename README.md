@@ -195,21 +195,5 @@ Cross-platform build system
 
 
 
-#Development Guidelines
-
-@ Follow C programming best practices
-@ Include comments for complex logic
-@ Test on multiple platforms if possible
-@ Update documentation accordingly
-
-
-
-🙏 Acknowledgments
-Inspired by online typing tests and speed measurement tools
-Built with standard C libraries for maximum compatibility
-Thanks to the C programming community for best practices.
-
-
-
 
 
