@@ -1,0 +1,215 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <ctype.h>
+
+#define MAX_INPUT_LENGTH 1000
+#define PARAGRAPH_COUNT 5
+
+// Array of sample paragraphs for typing test
+const char *paragraphs[PARAGRAPH_COUNT] = {
+    "The quick brown fox jumps over the lazy dog. This sentence contains all letters of the English alphabet and is perfect for typing practice.",
+    "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using many programming languages.",
+    "The future belongs to those who believe in the beauty of their dreams. Always work hard and never give up on what you want to achieve in your life.",
+    "Learning to type quickly and accurately is an essential skill in today's digital world. Practice makes perfect when it comes to improving your typing speed.",
+    "C programming language is one of the most popular and widely used programming languages. It is efficient and gives programmers maximum control and efficiency."
+};
+
+// Function to calculate WPM
+double calculate_wpm(int correct_chars, double time_taken) {
+    // Standard WPM calculation: (characters / 5) / minutes
+    if (time_taken == 0) return 0;
+    double words = correct_chars / 5.0;
+    double minutes = time_taken / 60.0;
+    return words / minutes;
+}
+
+// Function to calculate accuracy
+double calculate_accuracy(int correct_chars, int total_chars) {
+    if (total_chars == 0) return 0;
+    return ((double)correct_chars / total_chars) * 100.0;
+}
+
+// Function to compare user input with original text
+int compare_texts(const char *original, const char *user_input, int *correct_chars) {
+    int total_chars = 0;
+    *correct_chars = 0;
+    
+    while (*original && *user_input) {
+        if (*original == *user_input) {
+            (*correct_chars)++;
+        }
+        total_chars++;
+        original++;
+        user_input++;
+    }
+    
+    // Handle case where strings are of different lengths
+    while (*original) {
+        total_chars++;
+        original++;
+    }
+    
+    return total_chars;
+}
+
+// Function to display results
+void display_results(double wpm, double accuracy, double time_taken, int correct_chars, int total_chars) {
+    printf("\n=== TYPING TEST RESULTS ===\n");
+    printf("Time taken: %.2f seconds\n", time_taken);
+    printf("Total characters: %d\n", total_chars);
+    printf("Correct characters: %d\n", correct_chars);
+    printf("Words Per Minute (WPM): %.2f\n", wpm);
+    printf("Accuracy: %.2f%%\n", accuracy);
+    
+    printf("\nPerformance Analysis:\n");
+    if (wpm < 20) {
+        printf("-> Beginner level. Keep practicing!\n");
+    } else if (wpm < 40) {
+        printf("-> Intermediate level. Good job!\n");
+    } else if (wpm < 60) {
+        printf("-> Advanced level. Excellent!\n");
+    } else {
+        printf("-> Expert level. Outstanding!\n");
+    }
+    
+    if (accuracy >= 95) {
+        printf("-> Excellent accuracy!\n");
+    } else if (accuracy >= 85) {
+        printf("-> Good accuracy!\n");
+    } else if (accuracy >= 70) {
+        printf("-> Fair accuracy. Focus on precision.\n");
+    } else {
+        printf("-> Needs improvement. Practice for better accuracy.\n");
+    }
+}
+
+// Function to display typing tips
+void display_tips() {
+    printf("\n=== TYPING TIPS ===\n");
+    printf("1. Use all fingers, not just a few\n");
+    printf("2. Maintain proper posture\n");
+    printf("3. Keep your eyes on the screen, not keyboard\n");
+    printf("4. Practice regularly for improvement\n");
+    printf("5. Focus on accuracy first, then speed\n");
+}
+
+int main() {
+    char user_input[MAX_INPUT_LENGTH];
+    int choice;
+    time_t start_time, end_time;
+    double time_taken;
+    
+    printf("=== TYPING SPEED TEST ===\n");
+    printf("Developed in C Language\n");
+    printf("=======================\n");
+    
+    do {
+        printf("\nMenu:\n");
+        printf("1. Start Typing Test\n");
+        printf("2. View Typing Tips\n");
+        printf("3. Exit\n");
+        printf("Enter your choice (1-3): ");
+        scanf("%d", &choice);
+        getchar(); // Clear newline from buffer
+        
+        switch(choice) {
+            case 1: {
+                // Select a random paragraph
+                srand(time(NULL));
+                int paragraph_index = rand() % PARAGRAPH_COUNT;
+                const char *selected_paragraph = paragraphs[paragraph_index];
+                
+                printf("\nType the following paragraph:\n");
+                printf("==============================\n");
+                printf("%s\n", selected_paragraph);
+                printf("==============================\n");
+                
+                printf("\nPress ENTER when you are ready to start typing...");
+                getchar();
+                
+                printf("\nSTART TYPING NOW!\n");
+                printf("> ");
+                
+                // Record start time
+                start_time = time(NULL);
+                
+                // Get user input
+                if (fgets(user_input, MAX_INPUT_LENGTH, stdin) == NULL) {
+                    printf("Error reading input!\n");
+                    break;
+                }
+                
+                // Record end time
+                end_time = time(NULL);
+                
+                // Remove newline character from user input
+                user_input[strcspn(user_input, "\n")] = 0;
+                
+                // Calculate results
+                time_taken = difftime(end_time, start_time);
+                int correct_chars, total_chars;
+                total_chars = compare_texts(selected_paragraph, user_input, &correct_chars);
+                
+                double wpm = calculate_wpm(correct_chars, time_taken);
+                double accuracy = calculate_accuracy(correct_chars, total_chars);
+                
+                // Display results
+                display_results(wpm, accuracy, time_taken, correct_chars, total_chars);
+                
+                // Ask if user wants to see mistakes
+                if (accuracy < 100) {
+                    printf("\nDo you want to see mistakes? (y/n): ");
+                    char see_mistakes;
+                    scanf(" %c", &see_mistakes);
+                    getchar();
+                    
+                    if (see_mistakes == 'y' || see_mistakes == 'Y') {
+                        printf("\nMistake Analysis:\n");
+                        printf("Original: %s\n", selected_paragraph);
+                        printf("Your text: %s\n", user_input);
+                        printf("Comparison: ");
+                        
+                        const char *orig = selected_paragraph;
+                        const char *user = user_input;
+                        
+                        while (*orig || *user) {
+                            if (*orig && *user) {
+                                if (*orig == *user) {
+                                    printf("%c", *orig);
+                                } else {
+                                    printf("[%c->%c]", *orig, *user);
+                                }
+                                orig++;
+                                user++;
+                            } else if (*orig) {
+                                printf("[%c->?]", *orig);
+                                orig++;
+                            } else {
+                                printf("[?->%c]", *user);
+                                user++;
+                            }
+                        }
+                        printf("\n");
+                    }
+                }
+                break;
+            }
+            
+            case 2:
+                display_tips();
+                break;
+                
+            case 3:
+                printf("Thank you for using Typing Speed Test!\n");
+                break;
+                
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+        
+    } while (choice != 3);
+    
+    return 0;
+}
